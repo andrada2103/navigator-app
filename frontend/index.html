@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Navigator</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="splash-screen">
+  <div class="splash-logo">Navigator</div>
+  <div class="splash-spinner"></div>
+  <div class="splash-text">Se încarcă harta...</div>
+</div>
+<script>
+window.addEventListener('load', () => {
+  document.getElementById('splash-screen').style.opacity = '0';
+  setTimeout(() => {
+    document.getElementById('splash-screen').style.display = 'none';
+  }, 500); 
+});
+</script>
+
+<!--overlay pentru sidebar-->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<div class="app-layout">
+
+  <button class="hamburger-btn" id="hamburgerBtn" style="display: none;">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/>
+    </svg>
+</button>
+
+<div id="map"></div>
+
+<!--sidebar pentru butoane-->
+<div id="sidebar" class="sidebar">
+  <div class="sidebar-header">
+    <h3>Navigator</h3>
+  </div>
+  
+  <div class="sidebar-content">
+    <button id="authBtn" class="sidebar-btn">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" class="sidebar-icon">
+        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+      </svg>
+      <span>Autentificare</span>
+    </button>
+
+    <button id="historyBtn" class="sidebar-btn">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" class="sidebar-icon">
+        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-.5-13v6l5.25 3.15.75-1.23-4.5-2.67V7z"/>
+      </svg>
+      <span>Istoric</span>
+    </button>
+
+    <button id="sidebarWeatherBtn" class="sidebar-btn">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" class="sidebar-icon">
+        <path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM19 18H6c-2.21 0-4-1.79-4-4s1.79-4 4-4h.71C7.37 7.69 9.48 6 12 6c3.04 0 5.5 2.46 5.5 5.5v.5H19c1.66 0 3 1.34 3 3s-1.34 3-3 3z"/>
+      </svg>
+      <span>Vreme</span>
+    </button>
+
+    <button id="busScheduleBtn" class="sidebar-btn">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" class="sidebar-icon">
+        <path d="M4 16c0 .88.39 1.67 1 2.22V20c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h8v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1.78c.61-.55 1-1.34 1-2.22V6c0-3.5-3.58-4-8-4s-8 .5-8 4v10zm3.5 1c-.83 0-1.5-.67-1.5-1.5S6.67 14 7.5 14s1.5.67 1.5 1.5S8.33 17 7.5 17zm9 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm1.5-6H6V6h12v5z"/>
+      </svg>
+      <span>Autobuze</span>
+    </button>
+
+    <button id="poiToggleBtn" class="sidebar-btn">
+      <svg width="20" height="20" viewBox="0 0 14 14" fill="currentColor">
+        <path d="M 8.2,8.2 7,13 1,1 13,5.8 Z"/>
+      </svg>
+      <span>Puncte de interes</span>
+    </button>
+
+    <button id="reportIssueBtn" class="sidebar-btn">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+      </svg>
+      <span>Raportează Problemă</span>
+    </button>
+
+    <button id="showStopsOnMapBtn" class="sidebar-btn">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" class="sidebar-icon">
+        <path d="M12 2c-4.418 0-8 3.582-8 8 0 5.25 8 13 8 13s8-7.75 8-13c0-4.418-3.582-8-8-8zm0 11c-1.657 0-3-1.343-3-3s1.343-3 3-3 3 1.343 3 3-1.343 3-3 3z"/>
+      </svg>
+      <span>Arată stațiile</span>
+    </button>
+
+    <div class="demo-section">
+      <button id="demoToggleBtn" class="demo-toggle-btn">
+        <span>Demo blocaje străzi</span>
+        <span id="demoChevron">▼</span>
+      </button>
+      
+      <div id="demoPanel" class="demo-panel">
+        <div class="demo-header-row">
+          <span class="demo-header-label">Stradă</span>
+          <span class="demo-header-label">Status</span>
+        </div>
+        
+        <div class="block-row" data-block="calea_bucuresti_1">
+          <span class="block-name">Calea București 1</span>
+          <span class="block-status active">activ</span>
+        </div>
+        
+        <div class="block-row" data-block="calea_bucuresti_2">
+          <span class="block-name">Calea București 2</span>
+          <span class="block-status active">activ</span>
+        </div>
+        
+        <div class="block-row" data-block="bulevardul_grivitei">
+          <span class="block-name">B-dul Griviței</span>
+          <span class="block-status inactive">inactiv</span>
+        </div>
+        
+        <div class="block-row" data-block="bulevardul_vlahuta">
+          <span class="block-name">Al. Vlahuță</span>
+          <span class="block-status inactive">inactiv</span>
+        </div>
+        
+        <div class="block-row" data-block="strada_harmanului">
+          <span class="block-name">Str. Hărmanului</span>
+          <span class="block-status inactive">inactiv</span>
+        </div>
+        
+        <div class="block-row" data-block="strada_independentei">
+          <span class="block-name">Str. Independenței</span>
+          <span class="block-status inactive">inactiv</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>  
+
+<div id="searchContainer">
+  <div id="topSearchRow" class="top-search-row">
+    <!--rutare masina-->
+    <button id="toggleRoutePanelBtn" class="route-toggle-btn" title="Rută cu mașina/bicicleta">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+        </svg>
+        <span>Rută</span>
+    </button>
+    
+    <!--rutare cu autobuzul-->
+    <button id="toggleBusRouteBtn" class="route-toggle-btn" title="Rută cu autobuzul">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M4 16c0 .88.39 1.67 1 2.22V20c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h8v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1.78c.61-.55 1-1.34 1-2.22V6c0-3.5-3.58-4-8-4s-8 .5-8 4v10z"/>
+        </svg>
+        <span>Autobuz</span>
+    </button>
+
+    <!--search quick-->
+    <form id="searchForm" class="search-form">
+        <input type="text" id="searchInput" class="search-input" placeholder="Caută un loc sau adresă..." autocomplete="off" />
+    </form>
+</div>
+
+<!--routing panel (masina/bicicleta/pe jos)-->
+<div id="routePanel" class="route-panel" style="display:none;">
+  <div class="route-panel-row">
+    <div class="route-panel-col">
+      <label class="route-panel-label">Plecare</label>
+      <div class="route-panel-input-group">
+        <input type="text" id="startPoint" class="route-panel-input" placeholder="Locația ta">
+        <button type="button" id="startLocationBtn" class="route-location-btn" title="Locația curentă">📍</button>
+      </div>
+      <div class="route-search-results" id="startSearchResults" style="display:none;"></div>
+    </div>
+
+    <div class="route-panel-col">
+      <label class="route-panel-label">Destinație</label>
+      <input type="text" id="endPoint" class="route-panel-input" placeholder="Unde mergem?" style="width:100%; box-sizing: border-box;">
+      <div class="route-search-results" id="endSearchResults" style="display:none;"></div>
+    </div>
+  </div>
+
+  <div class="route-select-row">
+  <select id="transportType" class="route-select" style="flex: 1;">
+    <option value="driving">Mașină</option>
+    <option value="walking">Pe jos</option>
+    <option value="cycling">Bicicletă</option>
+  </select>
+  
+<select id="routePreference" class="route-select route-preference-select" style="flex: 1; display: none;">
+  <option value="fastest" selected>Rapidă</option>
+  <option value="optimal">Scurtă</option>
+  <option value="balanced">Confort</option>
+</select>
+  
+  <button type="button" id="addStopBtn" class="route-add-stop-btn">
+    + Oprire
+  </button>
+</div>
+
+<!-- Descriere pentru preferință -->
+<div id="preferenceHint" class="preference-hint" style="display: none;">
+  <span id="preferenceHintText">Cea mai rapidă rută - prioritate timp</span>
+</div>
+  
+
+  <div id="intermediateStopsContainer"></div>
+
+  <div class="route-actions">
+    <button id="calculateRouteBtn" class="route-calc-btn">
+      Calculează ruta
+    </button>
+    <button id="clearRouteBtn" class="route-clear-btn">
+      Șterge
+    </button>
+  </div>
+</div>
+
+  <!--bus routing panel-->
+<div id="busRoutePanel" class="bus-route-panel" style="display:none;">
+    <div class="bus-route-row">
+        <div class="bus-route-col">
+            <label class="bus-route-label">PLECARE</label>
+            <div class="bus-route-input-group">
+                <input type="text" id="busStartPoint" class="bus-route-input" placeholder="Ex: Piața Sfatului">
+                <button type="button" id="busStartLocationBtn" class="bus-location-btn" title="Locația curentă">📍</button>
+            </div>
+            <ul class="route-search-results" id="busStartSearchResults"></ul>
+        </div>
+
+        <div class="bus-route-col">
+            <label class="bus-route-label">DESTINAȚIE</label>
+            <div class="bus-route-input-group">
+                <input type="text" id="busEndPoint" class="bus-route-input" placeholder="Ex: Coresi">
+                <button type="button" id="busSwapLocationsBtn" class="bus-swap-btn" title="Interschimbă">⇅</button>
+            </div>
+            <ul class="route-search-results" id="busEndSearchResults"></ul>
+        </div>
+    </div>
+
+    <div class="bus-route-actions">
+        <button id="findBusRoutesBtn" class="bus-calc-btn">Calculează ruta</button>
+        <button id="clearBusRouteBtn" class="bus-clear-btn">Șterge</button>
+    </div>
+
+    <!--rezultate-->
+    <div id="busRouteResults" class="bus-results-container"></div>
+</div>
+
+  <!--rezultate pentru quick search-->
+  <ul id="searchResults" style="display:none;"></ul>
+</div>
+
+
+<div id="poiContainer" class="poi-container">
+    <div class="poi-header">
+        <h3>Categorii</h3>
+        <button id="closePoiBtn" class="close-poi">×</button>
+    </div>
+    
+    <div class="poi-categories">
+        <button class="poi-category-btn" data-category="benzinarie">
+            <span>Benzinării</span>
+        </button>
+        <button class="poi-category-btn" data-category="hotel">
+            <span>Hoteluri</span>
+        </button>
+        <button class="poi-category-btn" data-category="farmacie">
+            <span>Farmacii</span>
+        </button>
+        <button class="poi-category-btn" data-category="bancomat">
+            <span>Bancomate</span>
+        </button>
+        <button class="poi-category-btn" data-category="restaurant">
+            <span>Restaurante</span>
+        </button>
+        <button class="poi-category-btn" data-category="mall">
+            <span>Mall-uri</span>
+        </button>
+    </div>
+    
+    <div class="poi-content">
+        <div id="poiResults" class="poi-results">
+        </div>
+    </div>
+</div>
+
+<div class="fab-container">
+    <div class="fab-menu">
+        <button class="fab-menu-btn fab-favorites" id="fabFavoritesBtn" title="Locuri favorite">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+            </svg>
+            <span class="fab-label">Locuri favorite</span>
+        </button>
+        
+        <button class="fab-menu-btn fab-home" id="fabHomeBtn" title="Acasă">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+            </svg>
+            <span class="fab-label">Acasă</span>
+        </button>
+        
+        <button class="fab-menu-btn fab-work" id="fabWorkBtn" title="Muncă">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M20 6h-4V4c0-1.11-.89-2-2-2h-4c-1.11 0-2 .89-2 2v2H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-6 0h-4V4h4v2z"/>
+            </svg>
+            <span class="fab-label">Muncă</span>
+        </button>
+    </div>
+    
+    <button class="fab-main" id="fabMainBtn">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+        </svg>
+    </button>
+</div>
+
+<div id="favoritesModal" class="modal">
+    <div class="modal-content favorites-modal">
+        <div class="modal-header">
+            <h2 id="favoritesModalTitle">Locuri favorite</h2>
+            <span class="close favorites-close">&times;</span>
+        </div>
+        <div class="modal-body">
+            <!-- Formular adăugare loc nou -->
+            <div id="addFavoriteForm" class="add-favorite-form">
+                <form id="newFavoriteForm" class="favorite-form">
+                    <div class="form-group">
+                        <label>Nume locație:</label>
+                        <input type="text" id="favoriteName" placeholder="ex: Casă, Muncă, Restaurant preferat..." required>
+                    </div>
+                    
+                    <div class="form-group-row">
+                        <div style="flex: 1;">
+                            <label>Adresă:</label>
+                            <input type="text" id="favoriteAddress" placeholder="Introdu adresa..." required>
+                        </div>
+                        <button type="button" id="useCurrentLocationBtn" class="current-location-btn">📍</button>
+                    </div>
+                    
+                    <div class="favorite-form-buttons">
+                        <button type="submit" class="favorite-submit-btn">Salvează</button>
+                        <button type="button" id="cancelFavoriteBtn" class="favorite-cancel-btn">Anulează</button>
+                    </div>
+                </form>
+            </div>
+            
+            <div id="favoritesListContainer">
+                <div class="favorites-header-row">
+                    <h3 class="favoriteHeader">Locurile tale</h3>
+                    <button id="showAddFormBtn" class="add-favorite-btn">+ Adaugă loc</button>
+                </div>
+                
+                <div id="favoritesList" class="favorites-list">
+                    <p class="empty-favorites-message">
+                        Nu ai locuri favorite. Adaugă unul!
+                    </p>
+                </div>
+            </div>
+            
+            <div id="favoritesMessage" class="favorites-message"></div>
+        </div>
+    </div>
+</div>
+
+<button id="mapViewToggleBtn" class="map-view-toggle-btn" title="Schimbă modul hartă">
+    <svg width="800px" height="800px" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" class="iconify iconify--gis" preserveAspectRatio="xMidYMid meet">
+  <path d="M50.049 16.035a4.725 2.593 0 0 0-3.39.76L1.382 41.64a4.725 2.593 0 0 0 0 3.668l45.275 24.845a4.725 2.593 0 0 0 6.684 0l1.572-.863a22.282 22.282 0 0 1-1.254-6.645L50 64.654l-38.594-21.18L50 22.295l34.66 19.02a22.338 22.338 0 0 1 3.834 2.104l.102.057l-.01.005a23.007 23.007 0 0 1 4.941 4.622l5.09-2.793a4.725 2.593 0 0 0 0-3.668L53.342 16.795a4.725 2.593 0 0 0-3.293-.76zM4.727 52.857l-3.344 1.834a4.725 2.593 0 0 0 0 3.668l45.275 24.846a4.725 2.593 0 0 0 6.684 0l7.053-3.87a702.83 702.83 0 0 0-3.147-5.37c-.04-.058-.073-.12-.111-.178L50 77.705l-38.596-21.18l.004-.002l-6.681-3.666zm92.04.82a21.012 21.012 0 0 1 1.33 4.968l.52-.286a4.725 2.593 0 0 0-.002-3.668l-1.847-1.013z" fill="#ffffff"></path>
+  <path d="M75.98 43.55c-10.09 0-18.359 8.244-18.359 18.306a18.13 18.13 0 0 0 3.353 10.5L73.74 94.424c1.787 2.335 2.975 1.89 4.462-.125l14.08-23.96c.284-.514.507-1.063.702-1.622a18.062 18.062 0 0 0 1.352-6.861c0-10.062-8.265-18.306-18.356-18.306zm0 8.577c5.434 0 9.754 4.311 9.754 9.729c0 5.418-4.32 9.726-9.754 9.726c-5.433 0-9.757-4.308-9.757-9.726c0-5.418 4.324-9.73 9.757-9.73z" fill="#ffffff"></path>
+</svg>
+</button>
+
+<div id="mapViewPopup" class="map-view-popup">
+    <div class="map-view-popup-title">Mod Hartă</div>
+    <div class="map-view-popup-buttons">
+        <button class="map-view-popup-btn active" data-mode="standard" title="Standard">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 0 1 0-5 2.5 2.5 0 0 1 0 5z"/>
+            </svg>
+        </button>
+        <button class="map-view-popup-btn" data-mode="satellite" title="Satelit">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
+                <circle cx="12" cy="12" r="3"/>
+            </svg>
+        </button>
+        <button class="map-view-popup-btn" data-mode="relief" title="Relief">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M14 6l-3.75 5 2.85 3.8-1.6 1.2C9.81 13.75 7 10 7 10l-6 8h22L14 6z"/>
+            </svg>
+        </button>
+    </div>
+    
+    <div style="display: flex; align-items: center; justify-content: space-between; padding: 0 5px; margin-top: 10px;">
+    <span style="color: white; font-size: 11px; font-weight: 600;">Trafic Live</span>
+    <label class="radar-switch">
+        <input type="checkbox" id="trafficToggle">
+        <span class="radar-slider"></span>
+    </label>
+</div>
+</div>
+
+<div id="trafficLegend" class="radar-legend" style="display: none;">
+    <div class="traffic-legend-title">Trafic Live</div>
+    <div class="traffic-legend-row">
+        <div class="traffic-color-box green"></div> <span>Fluid</span>
+    </div>
+    <div class="traffic-legend-row">
+        <div class="traffic-color-box yellow"></div> <span>Moderat</span>
+    </div>
+    <div class="traffic-legend-row">
+        <div class="traffic-color-box orange"></div> <span>Aglomerat</span>
+    </div>
+</div>
+
+<div id="weatherModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Vremea la destinație</h2>
+            <span class="close">&times;</span>
+        </div>
+        <div class="modal-body" id="weatherModalBody">
+            <div id="weatherContent" style="background: rgba(0,0,0,0.05); padding: 15px; border-radius: 8px;">
+                <p style="text-align: center; padding: 40px;">Se încarcă vremea...</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="authModal" class="modal">
+  <div class="modal-content auth-modal">
+    <div class="modal-header">
+      <h2 id="authModalTitle">Autentificare</h2>
+      <span class="close auth-close">&times;</span>
+    </div>
+    <div class="modal-body">
+      <div id="authTabs" class="auth-tabs">
+        <button class="tab-btn active" data-tab="login">Autentificare</button>
+        <button class="tab-btn" data-tab="register">Înregistrare</button>
+      </div>
+      
+      <form id="loginForm" class="auth-form active">
+        <div class="form-group">
+          <label>Email:</label>
+          <input type="email" id="loginEmail" required>
+        </div>
+        <div class="form-group">
+          <label>Parolă:</label>
+          <input type="password" id="loginPassword" required>
+        </div>
+        <button type="submit" class="auth-submit-btn">Autentifică-te</button>
+      </form>
+      
+      <form id="registerForm" class="auth-form">
+        <div class="form-group">
+          <label>Nume (opțional):</label>
+          <input type="text" id="registerName">
+        </div>
+        <div class="form-group">
+          <label>Email:</label>
+          <input type="email" id="registerEmail" required>
+        </div>
+        <div class="form-group">
+          <label>Parolă:</label>
+          <input type="password" id="registerPassword" required>
+        </div>
+        <button type="submit" class="auth-submit-btn">Înregistrează-te</button>
+      </form>
+      
+        <button id="logoutBtn" class="auth-submit-btn" style="display: none; margin-top: 20px; background: linear-gradient(145deg, #8B0000, #B22222, #DC143C);">
+    Deconectare
+  </button>
+
+      <div id="authMessage" class="auth-message"></div>
+    </div>
+  </div>
+</div>
+
+<div id="busModal" class="modal">
+  <div class="modal-content bus-modal">
+    <div class="modal-header">
+      <h2>Informații RATBV</h2>
+      <span class="close bus-close">&times;</span>
+    </div>
+    <div class="modal-body">
+      <div class="bus-controls" style="background: rgba(0,0,0,0.05); padding: 15px; border-radius: 8px;">
+        <div class="form-group">
+          <label>Selectează Linia:</label>
+          <select id="busLineSelect"><option value="">Alege linia...</option></select>
+        </div>
+        <div class="form-group">
+          <label>Direcție:</label>
+          <select id="busDirection">
+            <option value="0">Tur (Dus)</option>
+            <option value="1">Retur (Întors)</option>
+          </select>
+        </div>
+      </div>
+
+<div id="busLineDetails" style="display:none; margin-top: 20px;">
+  <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 15px; background: rgba(0,0,0,0.03); padding: 10px; border-radius: 8px;">
+     <div id="lineBadge" style="background: #4e5044; color: white; padding: 10px 15px; border-radius: 6px; font-weight: bold; font-size: 20px; min-width: 40px; text-align: center;">--</div>
+     <div style="flex: 1;">
+        <h4 id="lineFullName" style="margin: 0; color: #333; font-size: 14px;">Nume Linie</h4>
+     </div>
+  </div>
+
+  <h4 style="margin: 15px 0 10px 0; font-size: 14px; border-bottom: 1px solid #ddd; padding-bottom: 5px;">Stații pe traseu</h4>
+  <div id="busStopsList" style="max-height: 300px; overflow-y: auto; background: white; border-radius: 8px; border: 1px solid rgba(0, 0, 0, 0.1);">
+      </div>
+</div>
+
+      <div id="busInfo" style="display:none; margin-top:20px;">
+        <button id="clearBusMapBtn" class="auth-submit-btn" style="background: #8b0000 !important; width: 100%;">
+          Șterge traseul de pe hartă
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="reportModal" class="modal">
+  <div class="modal-content report-modal-content">
+    <div class="modal-header">
+      <h2>Raportează o problemă</h2>
+      <span class="close report-close">&times;</span>
+    </div>
+    <div class="modal-body report-modal-body">
+      <p id="reportLocationText" class="report-location-text">
+        Selectează locația pe hartă...
+      </p>
+      
+      <div class="form-group">
+        <label>Categorie Problemă:</label>
+        <select id="reportCategory" class="report-category-select">
+          <optgroup label="TRANSPORT">
+            <option value="delayed">Autobuz întârziat</option>
+            <option value="crowded">Autobuz supra-aglomerat</option>
+            <option value="skipped_stop">Autobuz a sărit stația</option>
+            <option value="dirty">Autobuz murdar</option>
+          </optgroup>
+          <optgroup label="INFRASTRUCTURĂ">
+            <option value="pothole">Groapă în drum</option>
+            <option value="obstruction">Obstacol pe carosabil</option>
+            <option value="missing_sign">Lipsă semn de circulație</option>
+            <option value="flooding">Inundație</option>
+          </optgroup>
+          <optgroup label="STAȚII & POI">
+            <option value="broken_bench">Bancă ruptă</option>
+            <option value="no_shelter">Lipsă adăpost</option>
+            <option value="poor_lighting">Iluminare defectă</option>
+            <option value="trash">Gunoi în jur</option>
+          </optgroup>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Descriere (opțional):</label>
+        <textarea id="reportDescription" rows="3" class="report-description-textarea"></textarea>
+      </div>
+
+      <button id="submitReportBtn" class="auth-submit-btn report-submit-btn">Trimite raportul</button>
+    </div>
+  </div>
+</div>
+<div id="historyModal" class="modal">
+  <div class="modal-content history-modal-content">
+    <div class="modal-header">
+      <h2>Istoric activități</h2>
+      <span class="close history-close">&times;</span>
+    </div>
+    <div class="modal-body">
+      
+      <div class="history-filters">
+        <select id="historyTypeFilter" class="history-filter-select">
+          <option value="all">Toate acțiunile</option>
+          <option value="search">Căutări</option>
+          <option value="route">Rute</option>
+          <option value="weather">Vreme</option>
+          <option value="bus">Autobuze</option>
+          <option value="poi">POI-uri</option>
+          <option value="favorite">Favorite</option>
+          <option value="report">Rapoarte</option>
+        </select>
+        
+        <button id="exportHistoryBtn" class="history-export-btn">
+          📥 Exportă CSV
+        </button>
+        
+        <button id="clearHistoryBtn" class="history-clear-btn">
+          🗑️ Șterge istoric
+        </button>
+      </div>
+      
+      <div id="historyList" class="history-list-container">
+        <div class="history-loading">
+          Se încarcă istoricul...
+        </div>
+      </div>
+      
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script src="weather/meteo-api.js"></script>
+<script type="module" src="js/main.js"></script>
+</body>
+</html>

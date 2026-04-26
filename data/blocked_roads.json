@@ -1,0 +1,52 @@
+{
+    "blocked_edges": [
+        {
+            "id": "calea_bucuresti_1",
+            "from": 2309788016,
+            "to": 3348054134,
+            "street_name": "Calea Bucure\u0219ti (segment 1)",
+            "reason": "Lucr\u0103ri la carosabil",
+            "active": true
+        },
+        {
+            "id": "calea_bucuresti_2",
+            "from": 2350922322,
+            "to": 5381114954,
+            "street_name": "Calea Bucure\u0219ti (segment 2)",
+            "reason": "Lucr\u0103ri la carosabil",
+            "active": true
+        },
+        {
+            "id": "bulevardul_grivitei",
+            "from": 2371228066,
+            "to": 5217498985,
+            "street_name": "Bulevardul Grivi\u021bei",
+            "reason": "Eveniment sportiv",
+            "active": false
+        },
+        {
+            "id": "bulevardul_vlahuta",
+            "from": 2578917719,
+            "to": 11499996491,
+            "street_name": "Bulevardul Alexandru Vlahu\u021b\u0103",
+            "reason": "Modernizare trotuare",
+            "active": true
+        },
+        {
+            "id": "strada_harmanului",
+            "from": 3407053700,
+            "to": 6542650922,
+            "street_name": "Strada H\u0103rmanului",
+            "reason": "\u00cenlocuire re\u021bea ap\u0103",
+            "active": false
+        },
+        {
+            "id": "strada_independentei",
+            "from": 6481767070,
+            "to": 2328345804,
+            "street_name": "Strada Independen\u021bei",
+            "reason": "Lucr\u0103ri de asfaltare",
+            "active": false
+        }
+    ]
+}
