@@ -11,20 +11,24 @@ Aplicația este dezvoltată full-stack (frontend + backend + procesare date) și
 
 Căutare locații (geocoding)
 
-Rutare cu algoritmul A* pe graf real
-rută cea mai scurtă (distanță)
-rută cea mai rapidă (timp)
-rută echilibrată (distanță + timp + siguranță - bazată pe tipul drumului)
+Rutare cu algoritmul A* pe graf real - rută cea mai scurtă (distanță), rută cea mai rapidă (timp), rută echilibrată (distanță + timp + siguranță - bazată pe tipul drumului)
+
 Rutare pentru mers pe jos și bicicletă
-Rutare multimodală (autobuz + mers pe jos)
-suport pentru rute directe sau cu un schimb
-integrare GTFS (date reale RATBV)
+
+Rutare multimodală (autobuz + mers pe jos) - suport pentru rute directe sau cu un schimb, integrare GTFS
+
 Sistem de favorite (localStorage + bază de date)
+
 Istoric hibrid (guest + user autentificat)
+
 Sistem meteo (vreme curentă + prognoză)
+
 Simulare blocaje rutiere (drumuri evitate de algoritm)
+
 Afișare puncte de interes (POI)
+
 Versiune mobilă (WebView Android)
+
 ##Tehnologii utilizate
 
 Frontend
