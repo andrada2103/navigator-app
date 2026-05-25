@@ -34,52 +34,77 @@ Versiune mobilă (WebView Android)
 Frontend
 
 HTML, CSS, JavaScript (modular)
+
 Leaflet (hărți)
+
 Backend
 
 PHP (API REST)
+
 MySQL (persistență date)
+
 Algoritmică și procesare date
 
 Python
+
 OSMnx (generare graf rutier)
+
 NetworkX (algoritmi pe graf)
+
 Date
 
 OpenStreetMap
+
 GTFS (transport public Brașov)
+
 ##Arhitectură
 
 Graful rutier este generat offline în Python și exportat în format JSON
+
 Backend-ul PHP încarcă graful și rulează algoritmul A*
+
 Pentru rute în afara Brașovului se folosește fallback către OSRM
+
 Datele GTFS sunt importate în baza de date și utilizate pentru rutare multimodală
+
 ##Instalare și rulare
 
 Clonează repository-ul
+
 Configurează fișierul .env pe baza .env.example
+
 Rulează aplicația folosind un server local (ex: XAMPP)
+
 Accesează aplicația în browser
-Rulează scriptul Python pentru regenerarea grafului:
-python generate_brasov_graph.py
+
+Rulează scriptul Python pentru regenerarea grafului: python generate_brasov_graph.py
 
 ##Testare
 
 Proiectul include teste funcționale pentru:
 
 validări frontend
+
 algoritm A*
+
 euristică
+
 rutare multimodală
+
 fallback OSRM
+
 Testele sunt orientate pe verificarea funcționalității componentelor principale.
 
 ##Limitări
 
 Rutarea pe graf propriu este disponibilă doar pentru municipiul Brașov (din motive de dimensiune și performanță)
+
 Pentru alte zone se folosește OSRM
+
 Aplicația mobilă este bazată pe WebView, nu nativă
+
 Testarea nu este complet automatizată (proiect de tip prototip)
+
 ##Observații
 
 Acest proiect este realizat ca lucrare de licență și reprezintă un prototip funcțional. Accentul a fost pus pe algoritmică, integrarea datelor reale și demonstrarea conceptului.
