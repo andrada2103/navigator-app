@@ -10,6 +10,7 @@ Aplicația este dezvoltată full-stack (frontend + backend + procesare date) și
 ##Funcționalități principale
 
 Căutare locații (geocoding)
+
 Rutare cu algoritmul A* pe graf real
 rută cea mai scurtă (distanță)
 rută cea mai rapidă (timp)
